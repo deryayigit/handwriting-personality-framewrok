@@ -1,0 +1,109 @@
+{
+  "ds1": {
+    "name": "Dataset 1 - Small Handwriting Personality Dataset",
+    "task": "classification",
+    "root": "datasets/ds1",
+    "split_type": "train_test",
+    "splits": {
+      "train": "datasets/ds1/train",
+      "test": "datasets/ds1/test"
+    },
+    "class_names": [
+      "Agreeableness",
+      "Conscientiousness",
+      "Extraversion",
+      "Neuroticism",
+      "Openness"
+    ]
+  },
+
+  "ds2": {
+    "name": "Dataset 2 - Extended Handwriting Personality Dataset",
+    "task": "classification",
+    "root": "datasets/ds2",
+    "split_type": "train_val_test",
+    "splits": {
+      "train": "datasets/ds2/train",
+      "val": "datasets/ds2/valid",
+      "test": "datasets/ds2/test"
+    },
+    "class_names": [
+      "Agreeableness",
+      "Conscientiousness",
+      "Extraversion",
+      "Neuroticism",
+      "Openness"
+    ]
+  },
+
+  "ds3": {
+    "name": "Dataset 3 - DS2 Train and Valid Merged",
+    "task": "classification",
+    "root": "datasets/ds3",
+    "split_type": "train_test",
+    "splits": {
+      "train": "datasets/ds3/train",
+      "test": "datasets/ds3/test"
+    },
+    "class_names": [
+      "Agreeableness",
+      "Conscientiousness",
+      "Extraversion",
+      "Neuroticism",
+      "Openness"
+    ]
+  },
+
+  "ds1_square": {
+    "name": "Dataset 1 - Square Center Crop Version",
+    "task": "classification",
+    "root": "datasets/ds1_square",
+    "split_type": "train_test",
+    "splits": {
+      "train": "datasets/ds1_square/train",
+      "test": "datasets/ds1_square/test"
+    },
+    "class_names": [
+      "Agreeableness",
+      "Conscientiousness",
+      "Extraversion",
+      "Neuroticism",
+      "Openness"
+    ]
+  }, 
+  "ds4_regression": {
+  "name": "Dataset 4 - HiEnWrite English Regression Dataset",
+  "task": "regression",
+  "root": "datasets/ds4_regression",
+  "split_type": "train_val_test",
+  "images": "datasets/ds4_regression/images",
+  "splits": {
+    "train": "datasets/ds4_regression/train.csv",
+    "val": "datasets/ds4_regression/val.csv",
+    "test": "datasets/ds4_regression/test.csv"
+  },
+  "target_columns": [
+    "Extroversion",
+    "Agreeableness",
+    "Conscientiousness",
+    "Neuroticism",
+    "Openness to Experience"
+  ]
+  },
+  "ds5": {
+  "name": "Dataset 5 - DS1 + DS4 Dominant Trait Classification Dataset",
+  "task": "classification",
+  "root": "datasets/ds5",
+  "split_type": "kfold",
+  "splits": {
+    "train": "datasets/ds5/train"
+  },
+  "class_names": [
+    "Agreeableness",
+    "Conscientiousness",
+    "Extraversion",
+    "Neuroticism",
+    "Openness"
+  ]
+  }
+}
