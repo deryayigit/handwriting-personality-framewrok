@@ -16,7 +16,7 @@ from PyQt6.QtWidgets import (
     QApplication, QWidget, QLabel, QPushButton, QFileDialog,
     QVBoxLayout, QHBoxLayout, QGroupBox, QProgressBar,
     QTableWidget, QTableWidgetItem, QHeaderView, QMessageBox,
-    QComboBox, QSplitter, QFrame, QSizePolicy, QDialog
+    QComboBox, QSplitter, QFrame, QSizePolicy, QDialog, QLineEdit
 )
 
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
@@ -430,6 +430,14 @@ class HandwritingDashboard(QWidget):
         self.demo_indices = {}
         self.comparison_rows = []
 
+        # Aktif oturum boyunca tutulan geçici tahmin karşılaştırma verileri.
+        # Dosyaya, JSON'a veya veritabanına yazılmaz; uygulama kapanınca silinir.
+        self.session_prediction_results = {}
+        self.session_ipip_results = {}
+        self.current_image_key = None
+        self.current_image_display_name = None
+        self.current_analysis_type = None
+
         self.analysis_experiment = self.controller.get_experiment_by_id(
             self.controller.default_analysis_experiment
         )
@@ -648,7 +656,7 @@ class HandwritingDashboard(QWidget):
         matrix_layout.addWidget(self.confusion_canvas, 8)
 
         self.metric_summary_label = QLabel(
-            "Accuracy: — | Macro F1: — | Precision: — | Recall: — | Total: — | Correct: —"
+            "Precision: — | Recall: — | Total: — | Correct: —"
         )
         self.metric_summary_label.setWordWrap(True)
         self.metric_summary_label.setStyleSheet(
@@ -662,6 +670,14 @@ class HandwritingDashboard(QWidget):
         self.open_comparison_button.clicked.connect(self._open_comparison_dialog)
 
         matrix_layout.addWidget(self.open_comparison_button)
+
+        self.open_prediction_comparison_button = QPushButton("Tahmin Karşılaştırmalarını Aç")
+        self.open_prediction_comparison_button.setFixedHeight(32)
+        self.open_prediction_comparison_button.clicked.connect(
+            self._open_prediction_comparison_dialog
+        )
+
+        matrix_layout.addWidget(self.open_prediction_comparison_button)
 
         matrix_box.setLayout(matrix_layout)
 
@@ -860,7 +876,7 @@ class HandwritingDashboard(QWidget):
         total, correct = self._compute_total_and_correct(matrix)
 
         self.metric_summary_label.setText(
-            f"Accuracy: {accuracy} | Macro F1: {macro_f1} | "
+            
             f"Precision: {precision} | Recall: {recall} | "
             f"Total: {total} | Correct: {correct}"
         )
@@ -905,7 +921,7 @@ class HandwritingDashboard(QWidget):
 
     def _open_comparison_dialog(self):
         dialog = QDialog(self)
-        dialog.setWindowTitle("Experiment Comparison")
+        dialog.setWindowTitle("Deney Sonuçları")
         dialog.resize(1100, 500)
         dialog.setStyleSheet(APP_STYLE)
 
@@ -943,7 +959,7 @@ class HandwritingDashboard(QWidget):
                 item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                 table.setItem(row_index, column, item)
 
-        clear_button = QPushButton("Clear Comparison History")
+        clear_button = QPushButton("Sonuçları Temizle")
         clear_button.clicked.connect(lambda: self._clear_comparison_history(dialog))
 
         layout.addWidget(table)
@@ -954,6 +970,247 @@ class HandwritingDashboard(QWidget):
     def _clear_comparison_history(self, dialog):
         self.comparison_rows.clear()
         dialog.close()
+
+    def _format_trait_for_table(self, value):
+        if value is None:
+            return "—"
+
+        try:
+            return f"{float(value):.1f}%"
+        except Exception:
+            return "—"
+
+    def _store_session_prediction_result(self, result: Dict[str, Any]):
+        if not self.current_image_key:
+            return
+
+        analysis_type = self.current_analysis_type or "original"
+        trait_values = self._extract_trait_values_from_result(result)
+
+        entry = self.session_prediction_results.setdefault(
+            self.current_image_key,
+            {
+                "display_name": self.current_image_display_name or "Seçili Görsel",
+                "original": None,
+                "enhanced": None
+            }
+        )
+
+        entry["display_name"] = self.current_image_display_name or entry["display_name"]
+        entry[analysis_type] = {
+            "traits": trait_values,
+            "predicted_class": result.get("predicted_class", "—"),
+            "task_type": self.current_task_type,
+            "experiment_id": (
+                self.analysis_experiment.get("experiment_id", "—")
+                if self.analysis_experiment
+                else "—"
+            ),
+            "checkpoint": (
+                self.analysis_checkpoint.get("name", "—")
+                if self.analysis_checkpoint
+                else "—"
+            )
+        }
+
+    def _collect_prediction_comparison_rows(self):
+        rows = []
+
+        for image_key, entry in self.session_prediction_results.items():
+            image_name = entry.get("display_name", "—")
+
+            for analysis_type, label in [
+                ("original", "Gerçek"),
+                ("enhanced", "Ön İşlemeli")
+            ]:
+                result_data = entry.get(analysis_type)
+
+                if not result_data:
+                    continue
+
+                traits = result_data.get("traits", {})
+
+                rows.append({
+                    "image_key": image_key,
+                    "image_name": image_name,
+                    "type": label,
+                    "traits": traits
+                })
+
+            ipip_traits = self.session_ipip_results.get(image_key)
+
+            rows.append({
+                "image_key": image_key,
+                "image_name": image_name,
+                "type": "IPIP",
+                "traits": ipip_traits or {}
+            })
+
+        return rows
+
+    def _populate_prediction_comparison_table(self, table: QTableWidget):
+        rows = self._collect_prediction_comparison_rows()
+        table.setRowCount(len(rows))
+
+        for row_index, row_data in enumerate(rows):
+            values = [
+                row_data["image_name"],
+                row_data["type"],
+            ]
+
+            traits = row_data.get("traits", {})
+
+            for trait in OCEAN_ORDER:
+                values.append(self._format_trait_for_table(traits.get(trait)))
+
+            for column, value in enumerate(values):
+                item = QTableWidgetItem(str(value))
+                item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+                table.setItem(row_index, column, item)
+
+    def _open_prediction_comparison_dialog(self):
+        if not self.session_prediction_results:
+            QMessageBox.information(
+                self,
+                "Karşılaştırma Verisi Yok",
+                "Henüz karşılaştırılacak analiz sonucu bulunmuyor. Önce gerçek veya ön işlemeli görüntü analizi yapmalısın."
+            )
+            return
+
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Tahmin Karşılaştırmaları")
+        dialog.resize(1050, 560)
+        dialog.setStyleSheet(APP_STYLE)
+
+        main_layout = QHBoxLayout(dialog)
+        main_layout.setSpacing(10)
+
+        table = QTableWidget()
+        table.setColumnCount(7)
+        table.setHorizontalHeaderLabels([
+            "Görsel", "Tür", "O", "C", "E", "A", "N"
+        ])
+        table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        table.setAlternatingRowColors(True)
+
+        self._populate_prediction_comparison_table(table)
+
+        ipip_box = QGroupBox("IPIP Sonucu Ekle / Güncelle")
+        ipip_layout = QVBoxLayout()
+        ipip_layout.setSpacing(8)
+
+        image_combo = QComboBox()
+        image_items = list(self.session_prediction_results.items())
+
+        for image_key, entry in image_items:
+            image_combo.addItem(entry.get("display_name", "—"), image_key)
+
+        ipip_layout.addWidget(QLabel("Görsel"))
+        ipip_layout.addWidget(image_combo)
+
+        input_fields = {}
+
+        for trait in OCEAN_ORDER:
+            row = QHBoxLayout()
+            label = QLabel(trait)
+            label.setMinimumWidth(125)
+
+            line_edit = QLineEdit()
+            line_edit.setPlaceholderText("IPIP ham skor / yüzde")
+            line_edit.setStyleSheet(
+                "background-color: #0f1d30; color: white; "
+                "border: 1px solid #24364f; border-radius: 5px; padding: 4px;"
+            )
+
+            input_fields[trait] = line_edit
+            row.addWidget(label)
+            row.addWidget(line_edit)
+            ipip_layout.addLayout(row)
+
+        info_label = QLabel(
+            "Girilen IPIP değerleri toplamları 100 olacak şekilde kıyaslama amaçlı normalize edilir."
+        )
+        info_label.setWordWrap(True)
+        info_label.setStyleSheet("color: #d8b4ff;")
+        ipip_layout.addWidget(info_label)
+
+        def load_ipip_values_for_selected_image():
+            image_key = image_combo.currentData()
+            values = self.session_ipip_results.get(image_key, {})
+
+            for trait, line_edit in input_fields.items():
+                value = values.get(trait)
+                line_edit.setText("" if value is None else f"{float(value):.1f}")
+
+        def apply_ipip_values():
+            image_key = image_combo.currentData()
+
+            if not image_key:
+                return
+
+            raw_values = {}
+
+            for trait, line_edit in input_fields.items():
+                text = line_edit.text().strip().replace(",", ".")
+
+                if not text:
+                    QMessageBox.warning(
+                        dialog,
+                        "Eksik Değer",
+                        "IPIP karşılaştırması için beş kişilik özelliğinin tamamını girmelisin."
+                    )
+                    return
+
+                try:
+                    raw_values[trait] = float(text)
+                except ValueError:
+                    QMessageBox.warning(
+                        dialog,
+                        "Geçersiz Değer",
+                        f"{trait} için sayısal bir değer girmelisin."
+                    )
+                    return
+
+            total = sum(raw_values.values())
+
+            if total <= 0:
+                QMessageBox.warning(
+                    dialog,
+                    "Geçersiz Toplam",
+                    "IPIP değerlerinin toplamı sıfırdan büyük olmalıdır."
+                )
+                return
+
+            normalized_values = {
+                trait: (value / total) * 100.0
+                for trait, value in raw_values.items()
+            }
+
+            self.session_ipip_results[image_key] = normalized_values
+
+            for trait, line_edit in input_fields.items():
+                line_edit.setText(f"{normalized_values[trait]:.1f}")
+
+            self._populate_prediction_comparison_table(table)
+
+        image_combo.currentIndexChanged.connect(load_ipip_values_for_selected_image)
+
+        apply_button = QPushButton("IPIP Sonucunu Normalize Et ve Ekle")
+        apply_button.clicked.connect(apply_ipip_values)
+        ipip_layout.addWidget(apply_button)
+
+        close_button = QPushButton("Kapat")
+        close_button.clicked.connect(dialog.close)
+        ipip_layout.addWidget(close_button)
+
+        ipip_box.setLayout(ipip_layout)
+        ipip_box.setFixedWidth(310)
+
+        main_layout.addWidget(table, 3)
+        main_layout.addWidget(ipip_box, 1)
+
+        load_ipip_values_for_selected_image()
+        dialog.exec()
 
     def _browse_image(self):
         file_path, _ = QFileDialog.getOpenFileName(
@@ -970,11 +1227,23 @@ class HandwritingDashboard(QWidget):
         self.processed_image_path = None
 
         prepared_path = self.controller.prepare_gui_image(file_path)
-        self._load_image_to_gui(prepared_path)
+        self._load_image_to_gui(
+            prepared_path,
+            display_name=Path(file_path).name,
+            image_key=str(Path(file_path).resolve())
+        )
 
-    def _load_image_to_gui(self, file_path: str):
+    def _load_image_to_gui(
+        self,
+        file_path: str,
+        display_name: Optional[str] = None,
+        image_key: Optional[str] = None
+    ):
         self.image_path = file_path
         self.processed_image_path = None
+        self.current_image_display_name = display_name or Path(file_path).name
+        self.current_image_key = image_key or str(Path(file_path).resolve())
+
 
         pixmap = self._make_pixmap_for_label(
             image_path=file_path,
@@ -1007,6 +1276,7 @@ class HandwritingDashboard(QWidget):
             )
             return
 
+        self.current_analysis_type = "original"
         self._start_prediction(
             model_path=self.analysis_model_path,
             image_path=self.image_path,
@@ -1035,6 +1305,7 @@ class HandwritingDashboard(QWidget):
             self.processed_image_path = processed_path
             self._update_processed_image(processed_path)
 
+            self.current_analysis_type = "enhanced"
             self._start_prediction(
                 model_path=self.analysis_model_path,
                 image_path=processed_path,
@@ -1079,6 +1350,7 @@ class HandwritingDashboard(QWidget):
     def _on_prediction_finished(self, result: Dict[str, Any]):
         self._update_prediction_panel(result)
         self._update_sample_result(result)
+        self._store_session_prediction_result(result)
         self._set_controls_enabled(True)
 
     def _on_prediction_failed(self, error_message: str):
@@ -1244,7 +1516,11 @@ class HandwritingDashboard(QWidget):
         self.current_expected_class = class_name
 
         prepared_path = self.controller.prepare_gui_image(str(selected_path))
-        self._load_image_to_gui(prepared_path)
+        self._load_image_to_gui(
+            prepared_path,
+            display_name=f"{class_name}/{selected_path.name}",
+            image_key=str(selected_path.resolve())
+        )
         self._analyze_original_image()
 
     def _load_random_test_sample(self):
@@ -1275,7 +1551,11 @@ class HandwritingDashboard(QWidget):
         self.current_expected_class = class_name
 
         prepared_path = self.controller.prepare_gui_image(str(selected_path))
-        self._load_image_to_gui(prepared_path)
+        self._load_image_to_gui(
+            prepared_path,
+            display_name=f"{class_name}/{selected_path.name}",
+            image_key=str(selected_path.resolve())
+        )
         self._analyze_original_image()
 
     def _update_active_model_text(self):
@@ -1324,6 +1604,7 @@ class HandwritingDashboard(QWidget):
         self.analyze_original_button.setEnabled(enabled)
         self.preprocess_button.setEnabled(enabled)
         self.open_comparison_button.setEnabled(enabled)
+        self.open_prediction_comparison_button.setEnabled(enabled)
 
         for button in self.sample_buttons.values():
             button.setEnabled(enabled)
