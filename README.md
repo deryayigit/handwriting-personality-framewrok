@@ -116,100 +116,100 @@ The datasets/ directory contains the datasets used for classification and regres
 
 #### ViT Pseudocode 
 
-Algorithm: Two-Stage Fine-Tuning Strategy  
+```text
+
+Algorithm: Two-Stage Fine-Tuning Strategy 
  
-Input:  
+Input: 
  
-D          → Training dataset  
+D          → Training dataset 
  
-M_pre      → ImageNet pretrained ViT model  
+M_pre      → ImageNet pretrained ViT model 
  
-θ_backbone → Transformer backbone parameters  
+θ_backbone → Transformer backbone parameters 
  
-θ_head     → Classification head parameters  
+θ_head     → Classification head parameters 
  
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
  
-STAGE 1 — Linear Probing (Head Training)  
+STAGE 1 — Linear Probing (Head Training) 
  
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
  
-1. Load the pretrained ViT model:  
+1. Load the pretrained ViT model: 
  
-M ← M_pre  
+ M ← M_pre 
  
-2. Freeze backbone parameters:  
+2. Freeze backbone parameters: 
  
-    θ_backbone.requires_grad ← False  
+     θ_backbone.requires_grad ← False 
  
-3. Optimize only the classification head parameters:  
+3. Optimize only the classification head parameters: 
  
-    Optimize(θ_head)  
+     Optimize(θ_head) 
  
-4. Run head training epochs:  
+4. Run head training epochs: 
  
-    for epoch = 1 → E_head do  
+     for epoch = 1 → E_head do 
  
-          logits ← M(x)  
+           logits ← M(x) 
  
-          loss ← CrossEntropyLoss(logits, y)  
+           loss ← CrossEntropyLoss(logits, y) 
  
-          Backpropagation(loss)  
+           Backpropagation(loss) 
  
-          θ_head ← Update(θ_head)  
+           θ_head ← Update(θ_head) 
  
-    end for  
+     end for 
  
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
  
-STAGE 2 — Full Fine-Tuning  
+STAGE 2 — Full Fine-Tuning 
  
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 
  
-5. Unfreeze backbone parameters:  
+5. Unfreeze backbone parameters: 
  
-    θ_backbone.requires_grad ← True  
+     θ_backbone.requires_grad ← True 
  
-6. Optimize all model parameters with a low learning rate:  
+6. Optimize all model parameters with a low learning rate: 
  
-    Optimize(θ_backbone ∪ θ_head)  
+     Optimize(θ_backbone ∪ θ_head) 
  
-7. Run fine-tuning epochs:  
+7. Run fine-tuning epochs: 
  
-    for epoch = 1 → E_finetune do  
+     for epoch = 1 → E_finetune do 
  
-          logits ← M(x)  
+           logits ← M(x) 
  
-          loss ← CrossEntropyLoss(logits, y)  
+           loss ← CrossEntropyLoss(logits, y) 
  
-          Backpropagation(loss)  
+           Backpropagation(loss) 
  
-          θ ← Update(θ)  
+           θ ← Update(θ) 
  
-          Calculate validation metrics:  
+           Calculate validation metrics: 
  
-                - Accuracy  
-                - Macro-F1  
-                - Loss  
+                 - Accuracy 
+                 - Macro-F1 
+                 - Loss 
  
-    end for  
+     end for 
  
-8. Save the model with the best validation score:  
+8. Save the model with the best validation score: 
  
-    M_best ← argmax(Macro-F1)  
+     M_best ← argmax(Macro-F1) 
  
-Output:  
+Output: 
  
-M_best → Fine-tuned Vision Transformer model 
- 
+M_best → Fine-tuned Vision Transformer model
+
+```
 ---
 
 ## Key Observations  
 
-## Key Observations
-
 Within the scope of this study, open-source datasets were utilized because collecting and labeling handwriting data requires considerable time, cost, and expert involvement. The experimental results showed that the Vision Transformer architecture was able to learn specific visual patterns from handwriting images that may be associated with personality traits. In addition, data balancing strategies, data augmentation techniques, and the K-Fold cross-validation approach were found to have a significant impact on model performance. While image enhancement methods improved performance in certain experiments, variations in model predictions were also observed across different handwriting samples from the same individual. This finding highlights both the complexity of handwriting-based personality prediction and the importance of dataset diversity when developing deep learning models for this task.
-
 
 ---
 
