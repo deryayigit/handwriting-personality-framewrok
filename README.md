@@ -12,12 +12,19 @@ The aim of this project is to predict personality traits within the framework of
 handwriting-personality-framework/
 │
 ├── datasets/
-│   ├── classification/
-│   └── regression/
+│   ├── ds1
+│   └── ds1_square
+│   └── ds2
+│   └── ds3
+│   └── ds4_regression
+│   └── ds5
+│   └── hienwrite
 │
 ├── preprocessing_module/
 │   └── image_enhancer.cpp
-│
+│   └── create_ds5.py
+│   └── create_square_dataset.py
+│   └──prepare_ds4.py
 ├── runs/
 │   ├── EXP-001/
 │   ├── EXP-002/
@@ -230,15 +237,25 @@ Within the scope of this study, open-source datasets were utilized because colle
 
 ---
 
+## Dataset Sources
+
+1. Chaubey, G. Personality Prediction Using Handwriting Images Dataset. Kaggle.
+(https://www.kaggle.com/datasets/gyanendrachaubey/personality-prediction-using-handwriting-images)
+
+2. Big Five Personality Computer Vision Dataset, Roboflow Universe, 
+(https://universe.roboflow.com/tugas-j4mkm/big-five-personality-5hbsp), 2 May 2026.  
+
+3. Checker, S. HiEnWrite Dataset.
+https://github.com/sakshamchecker/HiEnWrite-Dataset
+
+---
 ## References 
 
 1. Müsevitoğlu, H., Öztürk, A., & Başünal, F. N. (2023). Detection of Personality Features From Handwriting By Machine Learning Methods. Gazi Journal of Engineering Sciences, 9(2), 200–212.
 2. Open-Source Psychometrics Project. IPIP Big-Five Factor Markers. https://openpsychometrics.org/tests/IPIP-BFFM/
-3. Chaubey, G. Personality Prediction Using Handwriting Images. Kaggle.
-4. Checker, S. HiEnWrite Dataset. GitHub. https://github.com/sakshamchecker/HiEnWrite-Dataset
-5. Dosovitskiy, A., et al. (2021). An Image is Worth 16×16 Words: Transformers for Image Recognition at Scale. ICLR.
-6. Vaswani, A., et al. (2017). Attention Is All You Need. NeurIPS.
-7. Khan, S., et al. (2022). A Survey on Vision Transformers. ACM Computing Surveys, 54(10s), 1–41.
-8. Development Seed. Transfer Learning, Fine-Tuning and Hyperparameter Tuning. https://developmentseed.org/tensorflow-eo-training-2/docs/Lesson7c_transfer_learning_hyperparam_opt.html
-9. Nielsen, M. Neural Networks and Deep Learning. http://neuralnetworksanddeeplearning.com
-10. Zurada, J. M. (1992). Artificial Neural Systems. West Publishing Company.
+3. Dosovitskiy, A., et al. (2021). An Image is Worth 16×16 Words: Transformers for Image Recognition at Scale. ICLR.
+4. Vaswani, A., et al. (2017). Attention Is All You Need. NeurIPS.
+5. Khan, S., et al. (2022). A Survey on Vision Transformers. ACM Computing Surveys, 54(10s), 1–41.
+6. Development Seed. Transfer Learning, Fine-Tuning and Hyperparameter Tuning. https://developmentseed.org/tensorflow-eo-training-2/docs/Lesson7c_transfer_learning_hyperparam_opt.html
+7. Nielsen, M. Neural Networks and Deep Learning. http://neuralnetworksanddeeplearning.com
+8. Zurada, J. M. (1992). Artificial Neural Systems. West Publishing Company.
