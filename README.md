@@ -59,6 +59,14 @@ Stage 1 — Linear Probing: The backbone (Transformer encoder) is frozen, and on
 
 Stage 2 — Full Fine-Tuning: The backbone is unfrozen and the entire model is fine-tuned with a low learning rate; the checkpoint with the best Macro-F1 score is saved. 
 
+<p align="center">
+  <img src= "https://github.com/user-attachments/assets/0bed1887-af26-4f52-8303-af74004eec4b" 
+       alt="System Workflow"
+       width="500">
+  <br>
+  <em> Vision Transformer (ViT) Architecture Overview </em>
+</p>
+
 --- 
 
 ## Code Implementation → What is the architectural and implementation approach? 
