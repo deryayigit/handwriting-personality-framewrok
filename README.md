@@ -11,11 +11,11 @@ The aim of this project is to predict personality traits within the framework of
 The system uses handwriting images as input. In order for the model to process the data effectively, a square image is provided as input. The handwriting image uploaded by the user can optionally undergo an image enhancement stage and is then passed to the Vision Transformer model. The model predicts the dominant personality trait from the image and presents the result through the graphical user interface. 
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/da18de40-12e3-46e4-a09b-c803daf40ad6" 
-       alt="System Workflow"
-       width="500">
-  <br>
-  <em> General workflow of System.</em>
+  <img src="images/system_workflow.png" width="650">
+</p>
+
+<p align="center">
+  <b>General Flowchart</b>
 </p>
 
 ---
@@ -60,11 +60,11 @@ Stage 1 — Linear Probing: The backbone (Transformer encoder) is frozen, and on
 Stage 2 — Full Fine-Tuning: The backbone is unfrozen and the entire model is fine-tuned with a low learning rate; the checkpoint with the best Macro-F1 score is saved. 
 
 <p align="center">
-  <img src= "https://github.com/user-attachments/assets/0bed1887-af26-4f52-8303-af74004eec4b" 
-       alt="System Workflow"
-       width="500">
-  <br>
-  <em> Vision Transformer (ViT) Architecture Overview </em>
+  <img src="images/vit_architecture.png" width="850">
+</p>
+
+<p align="center">
+  <b>Vision Transformer (ViT) Architecture Overview</b>
 </p>
 
 --- 
