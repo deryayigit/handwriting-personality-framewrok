@@ -6,7 +6,37 @@ Studies linking handwriting to personality analysis are examined under the scien
 
 The aim of this project is to predict personality traits within the framework of the Five-Factor Personality Model (OCEAN) using handwriting images. As part of the study, a deep learning model based on the Vision Transformer (ViT) was developed, with the aim of predicting the dominant personality trait using a classification approach. To enhance model performance, comparative experiments were conducted by applying various datasets, data splitting strategies (Train-Test Split, Train-Validation-Test Split and Stratified K-Fold Cross Validation), data balancing methods (Class Weight, Weighted Random Sampler) and data augmentation techniques. Furthermore, the effects of preprocessing methods aimed at image enhancement on model performance were investigated. To facilitate the analysis of the results, a graphical user interface was developed that allows for the visualisation of experiment management, model comparisons, personality predictions and performance metrics. 
 
-## Definition, Input Format  
+## Repository Structure
+
+```text
+handwriting-personality-framework/
+│
+├── datasets/
+│   ├── classification/
+│   └── regression/
+│
+├── preprocessing_module/
+│   └── image_enhancer.cpp
+│
+├── runs/
+│   ├── EXP-001/
+│   ├── EXP-002/
+│   ├── EXP-003/
+│   └── ...
+│
+├── src/
+│   ├── classification/
+│   ├── regression/
+│   └── common/
+│
+├── main.py
+├── dataset_registry.json
+├── experiment_registry.json
+└── requirements.txt
+```
+
+
+##  System Overview
 
 The system uses handwriting images as input. In order for the model to process the data effectively, a square image is provided as input. The handwriting image uploaded by the user can optionally undergo an image enhancement stage and is then passed to the Vision Transformer model. The model predicts the dominant personality trait from the image and presents the result through the graphical user interface. 
 
@@ -69,7 +99,7 @@ Stage 2 — Full Fine-Tuning: The backbone is unfrozen and the entire model is f
 
 --- 
 
-## Code Implementation → What is the architectural and implementation approach? 
+## Code Implementation
 
 In the system design, Python was selected as the programming language due to its ease of use for vectorized operations, readability, open-source nature, extensive ecosystem support, and ability to accelerate development through rapid prototyping. In addition, Python is widely used in the modern Deep Learning ecosystem, making it a suitable choice for this project. 
 
@@ -79,32 +109,6 @@ Visual Studio Code (Windows ecosystem) was used as the development environment (
 
 The software architecture was designed in a modular manner. Within the scope of the project, the data layer, model training layer, and user interface layer were separated to create a maintainable and extensible system architecture. This structure enables easy integration of different datasets and training strategies. The codebase generally consists of data preparation, model training, evaluation, preprocessing, inference, and graphical user interface components. 
 
-```text
-handwriting-personality-framework/
-│
-├── datasets/
-│   ├── classification/
-│   └── regression/
-│
-├── preprocessing_module/
-│   └── image_enhancer.cpp
-│
-├── runs/
-│   ├── EXP-001/
-│   ├── EXP-002/
-│   ├── EXP-003/
-│   └── ...
-│
-├── src/
-│   ├── classification/
-│   ├── regression/
-│   └── common/
-│
-├── main.py
-├── dataset_registry.json
-├── experiment_registry.json
-└── requirements.txt
-```
  
 
 Each Python module is responsible for a specific task. The application is executed through a single entry point (GUI module), where model loading, inference, and user interactions are managed. The GUI does not perform model training; instead, it presents the outputs generated during training. 
