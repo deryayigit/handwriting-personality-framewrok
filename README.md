@@ -1,12 +1,10 @@
 # Handwriting Personality
 
-## Project Scope  
+Handwriting is an indicator of personality traits represented by neurological patterns in the brain. In other words, our brain and subconscious actually shape our character as a result of our habits. It is, therefore, a unique form of biometric data that contains various clues regarding an individual’s cognitive processes, motor skills and personality traits.  
 
-Handwriting is an indicator of personality traits represented by neurological patterns in the brain. In other words, our brain and subconscious shape our character as a result of our habits. Therefore, handwriting is a unique biometric trait that contains various clues about an individual's cognitive processes, motor skills, and personality characteristics. 
+Studies linking handwriting to personality analysis are examined under the science of graphology. Graphology is a field of study that involves drawing conclusions about personality and character based on a person’s handwriting. The subject of personality analysis through handwriting is seen to be utilised in various contexts, such as criminal investigations, human resources (the recruitment process), psychological counselling and guidance services, and education. 
 
-Studies associating handwriting with personality analysis are examined under the field of Graphology. Graphology is the field of study that encompasses inferences about personality and character based on a person's handwriting. Personality analysis through handwriting has been used in various areas such as forensic investigations, human resources (recruitment processes), psychological counseling and guidance services, and education. 
-
-In this project, the aim is to predict personality traits from handwriting images within the scope of the Five-Factor Personality Model (OCEAN). A Vision Transformer (ViT)-based deep learning model was developed, and a classification approach was employed to predict the dominant personality trait. To improve model performance, comparative experiments were conducted using different datasets, data splitting strategies (Train-Test Split, Train-Validation-Test Split, and Stratified K-Fold Cross Validation), data balancing methods (Class Weight, Weighted Random Sampler), and data augmentation techniques. In addition, the effects of CLAHE-based image enhancement and various preprocessing methods on model performance were investigated. To analyze the obtained results, a PyQt-based graphical user interface was developed, enabling experiment management, model comparisons, personality predictions, and visualization of performance metrics. 
+The aim of this project is to predict personality traits within the framework of the Five-Factor Personality Model (OCEAN) using handwriting images. As part of the study, a deep learning model based on the Vision Transformer (ViT) was developed, with the aim of predicting the dominant personality trait using a classification approach. To enhance model performance, comparative experiments were conducted by applying various datasets, data splitting strategies (Train-Test Split, Train-Validation-Test Split and Stratified K-Fold Cross Validation), data balancing methods (Class Weight, Weighted Random Sampler) and data augmentation techniques. Furthermore, the effects of preprocessing methods aimed at image enhancement on model performance were investigated. To facilitate the analysis of the results, a graphical user interface was developed that allows for the visualisation of experiment management, model comparisons, personality predictions and performance metrics. 
 
 ## Definition, Input Format  
 
@@ -42,11 +40,16 @@ Positional Embedding: A learnable positional embedding vector is added to each t
 
 Transformer Encoder: Consists of multiple encoder blocks, each containing Layer Normalization, Multi-Head Self-Attention (MSA), residual connections, and MLP layers. 
 
-Attention(Q, K, V) = Softmax(Q·Kᵀ / √dₖ) · V 
+
+```math
+Attention(Q,K,V)=Softmax\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+```
 
 Classification Layer: The [CLS] token from the encoder output is passed through the MLP head to generate logits corresponding to five classes, which are then converted into a probability distribution using Softmax. 
 
-σ(z)ᵢ = e^(zᵢ) / Σⱼ e^(zⱼ) 
+```math
+\sigma(z)_i=\frac{e^{z_i}}{\sum_j e^{z_j}}
+```
 
 Two-Stage Fine-Tuning Strategy 
 
@@ -68,30 +71,32 @@ Visual Studio Code (Windows ecosystem) was used as the development environment (
 
 The software architecture was designed in a modular manner. Within the scope of the project, the data layer, model training layer, and user interface layer were separated to create a maintainable and extensible system architecture. This structure enables easy integration of different datasets and training strategies. The codebase generally consists of data preparation, model training, evaluation, preprocessing, inference, and graphical user interface components. 
 
-handwriting-personality-framework/ 
-│ 
-├── datasets/ 
-│   ├── classification/ 
-│   └── regression/ 
-│ 
-├── preprocessing_module/ 
-│   └── image_enhancer.cpp 
-│ 
-├── runs/ 
-│   ├── EXP-001/ 
-│   ├── EXP-002/ 
-│   ├── EXP-003/ 
-│   └── ... 
-│ 
-├── src/ 
-│   ├── classification/ 
-│   ├── regression/ 
-│   └── common/ 
-│ 
-├── main.py 
-├── dataset_registry.json 
-├── experiment_registry.json 
-└── requirements.txt 
+```text
+handwriting-personality-framework/
+│
+├── datasets/
+│   ├── classification/
+│   └── regression/
+│
+├── preprocessing_module/
+│   └── image_enhancer.cpp
+│
+├── runs/
+│   ├── EXP-001/
+│   ├── EXP-002/
+│   ├── EXP-003/
+│   └── ...
+│
+├── src/
+│   ├── classification/
+│   ├── regression/
+│   └── common/
+│
+├── main.py
+├── dataset_registry.json
+├── experiment_registry.json
+└── requirements.txt
+```
  
 
 Each Python module is responsible for a specific task. The application is executed through a single entry point (GUI module), where model loading, inference, and user interactions are managed. The GUI does not perform model training; instead, it presents the outputs generated during training. 
