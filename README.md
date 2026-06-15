@@ -55,7 +55,7 @@ In this project, Data Collection, Model Development, GUI Integration, and Testin
 
 The user uploads a handwriting sample image through the developed Graphical User Interface (GUI). The input image is resized and normalized according to the requirements of the Vision Transformer (ViT) architecture (224×224×3). The image is then divided into 16×16 patches and converted into numerical embeddings that can be processed by the model.
 
-A ViT model pretrained on the ImageNet dataset and fine tuned on the handwriting dataset analyzes the input image and predicts the dominant personality trait. The prediction results are presented to the user through the GUI together with a confusion matrix summarizing the overall performance of the model. Model performance is also visualized through the confusion matrix.
+A ViT model pretrained on the ImageNet dataset and fine tuned on the handwriting dataset analyzes the input image and predicts the dominant personality trait. The prediction results are presented to the user through the GUI together with a confusion matrix visualizing model performance.
 
 ## Training Strategies and Experiments
 
@@ -74,7 +74,7 @@ Based on Accuracy and Macro F1 score, the best performing configuration was sele
 
 ---
  
-## Data Collection Stages and Data Splitting Strategies
+## Datasets and Data Splitting Strategies
 
 This project utilizes publicly available handwriting datasets collected from open-source repositories (see Dataset Sources below). The datasets are labeled according to the Big Five (OCEAN) personality model, with handwriting samples associated with personality scores obtained through the IPIP questionnaire.
 
@@ -94,7 +94,7 @@ A special classification token, usually called the CLS token, is added at the be
 The core of the model is a stack of Transformer encoder blocks, each made up of layer normalization, multi-head self-attention, residual connections, and a small MLP. The attention mechanism computes, for every patch, how strongly it should attend to every other patch:
 
 ```math
-Attention(Q,K,V)=Softmax\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+\text{Attention}(Q,K,V)=\text{Softmax}\left(\frac{QK^{T}}{\sqrt{d_k}}\right)V
 ```
 
 This is where ViT really differs from a typical CNN. A convolutional network builds up its understanding gradually, starting from small local filters (3×3 or 5×5) that detect edges and textures before combining them into larger shapes. ViT instead looks at all 196 patches at once from the very first layer, so it can directly relate, say, the slant of the first line of text to the spacing of the last line, even though they are far apart in the image.
@@ -102,7 +102,7 @@ This is where ViT really differs from a typical CNN. A convolutional network bui
 After passing through all the encoder blocks, the final representation of the CLS token is fed into an MLP classification head, which produces a logit for each of the five OCEAN personality classes. These logits are converted into probabilities using softmax:
 
 ```math
-\sigma(z)_i=\frac{e^{z_i}}{\sum_j e^{z_j}}
+\sigma(z_i)=\frac{e^{z_i}}{\sum_{j=1}^{C} e^{z_j}}
 ```
 
 Because the dataset used in this project is relatively small, the model is trained in two stages rather than fine tuning everything at once. In the first stage, the pretrained backbone is frozen and only the classification head is trained, so the model learns to map its existing visual features to the five personality classes. In the second stage, the backbone is unfrozen and the whole model is fine tuned with a low learning rate, while the checkpoint with the best Macro-F1 score on the validation set is kept. This two step approach helps the model adapt to handwriting images without losing the general visual knowledge it picked up from ImageNet.
@@ -289,32 +289,32 @@ https://github.com/sakshamchecker/HiEnWrite-Dataset
 
 ## References
 
-1.	Detection of Personality Features From Handwriting By Machine Learning Methods
-Müsevitoğlu, H., Öztürk, A., & Başünal, F. N. (2023). *Detection of Personality Features From Handwriting By Machine Learning Methods*. Gazi Journal of Engineering Sciences, 9(2), 200–212.
+1. Detection of Personality Features From Handwriting By Machine Learning Methods  
+   Müsevitoğlu, H., Öztürk, A., & Başünal, F. N. (2023). *Detection of Personality Features From Handwriting By Machine Learning Methods*. Gazi Journal of Engineering Sciences, 9(2), 200–212.
 
-2.	IPIP Big-Five Factor Markers
-Open-Source Psychometrics Project. *IPIP Big-Five Factor Markers*.
+2. IPIP Big-Five Factor Markers  
+   Open-Source Psychometrics Project. *IPIP Big-Five Factor Markers*.
 
-https://openpsychometrics.org/tests/IPIP-BFFM/
+   https://openpsychometrics.org/tests/IPIP-BFFM/
 
-3.	An Image is Worth 16×16 Words: Transformers for Image Recognition at Scale
-Dosovitskiy, A., et al. (2021). *An Image is Worth 16×16 Words: Transformers for Image Recognition at Scale*. ICLR.
+3. An Image is Worth 16×16 Words: Transformers for Image Recognition at Scale  
+   Dosovitskiy, A., et al. (2021). *An Image is Worth 16×16 Words: Transformers for Image Recognition at Scale*. ICLR.
 
-4.	Attention Is All You Need
-Vaswani, A., et al. (2017). *Attention Is All You Need*. NeurIPS.
+4. Attention Is All You Need  
+   Vaswani, A., et al. (2017). *Attention Is All You Need*. NeurIPS.
 
-5.	A Survey on Vision Transformers
-Khan, S., et al. (2022). *A Survey on Vision Transformers*. ACM Computing Surveys, 54(10s), 1–41.
+5. A Survey on Vision Transformers  
+   Khan, S., et al. (2022). *A Survey on Vision Transformers*. ACM Computing Surveys, 54(10s), 1–41.
 
-6.	Transfer Learning, Fine-Tuning and Hyperparameter Tuning
-Development Seed. *Transfer Learning, Fine-Tuning and Hyperparameter Tuning*.
+6. Transfer Learning, Fine-Tuning and Hyperparameter Tuning  
+   Development Seed. *Transfer Learning, Fine-Tuning and Hyperparameter Tuning*.
 
-https://developmentseed.org/tensorflow-eo-training-2/docs/Lesson7c_transfer_learning_hyperparam_opt.html
+   https://developmentseed.org/tensorflow-eo-training-2/docs/Lesson7c_transfer_learning_hyperparam_opt.html
 
-7.	Neural Networks and Deep Learning
-Nielsen, M. *Neural Networks and Deep Learning*.
+7. Neural Networks and Deep Learning  
+   Nielsen, M. *Neural Networks and Deep Learning*.
 
-http://neuralnetworksanddeeplearning.com
+   http://neuralnetworksanddeeplearning.com
 
-8.	 Artificial Neural Systems
-Zurada, J. M. (1992). *Artificial Neural Systems*. West Publishing Company.
+8. Artificial Neural Systems  
+   Zurada, J. M. (1992). *Artificial Neural Systems*. West Publishing Company.
