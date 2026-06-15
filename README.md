@@ -88,53 +88,24 @@ To investigate model performance under different experimental settings, three da
 
 ### Model Architecture
 
-The Vision Transformer (ViT) architecture, introduced by Dosovitskiy et al. in "An Image is Worth 16×16 Words" (ICLR 2021), processes an image as a sequence of fixed-size patches rather than individual pixels. This property is particularly well suited for handwriting analysis: what matters for personality prediction isn't the shape of a single letter, but holistic patterns such as line spacing, word spacing, and overall page layout. By modeling relationships between patches through multi-head self-attention, ViT can learn these global, style-level features directly from the data—without hand-crafted rules.
-
-**Pipeline:**
-
-**Resizing** — Input images are resized to 224×224×3 (RGB), matching the ImageNet-pretrained ViT's expected input.
-**Patch Embedding** — The image is split into 196 patches of 16×16 pixels (224/16 = 14 per side, 14×14 = 196). Each patch (16×16×3 = 768 values) is projected into a fixed-size embedding via a linear layer.
-**CLS Token** — A learnable classification token is prepended to the 196 patch embeddings, resulting in 197 tokens total. This token aggregates information from all patches through the encoder.
-**Positional Embedding** — Since Transformers have no inherent sense of spatial position, a learnable positional embedding is added to each token to preserve layout information.
-**Transformer Encoder** — A stack of encoder blocks, each consisting of Layer Normalization, Multi-Head Self-Attention (MSA), residual connections, and an MLP layer:
+The Vision Transformer (ViT) architecture was introduced by Dosovitskiy et al. in "An Image is Worth 16×16 Words" (ICLR, 2021). Instead of processing an image pixel by pixel, ViT splits it into fixed size patches and treats each patch as a token, similar to words in a sentence. 
+In this project, every input image is first resized to 224×224×3 (RGB), which matches the resolution expected by the ImageNet-pretrained ViT. The image is then divided into patches of 16×16 pixels, giving 14 patches along each side and 196 patches in total. Each patch contains 16×16×3 = 768 values, and these are projected through a linear layer into fixed-size embedding vectors. This step is generally referred to as patch embedding.
+A special classification token, usually called the CLS token, is added at the beginning of this sequence of 196 patch embeddings, bringing the total to 197 tokens. As the data passes through the encoder, the CLS token interacts with all the patch tokens and gradually builds up a representation of the whole image. Since the Transformer itself has no built-in notion of where each patch sits in the image, a learnable positional embedding is added to every token so that spatial layout information is not lost.
+The core of the model is a stack of Transformer encoder blocks, each made up of layer normalization, multi-head self-attention, residual connections, and a small MLP. The attention mechanism computes, for every patch, how strongly it should attend to every other patch:
 
 ```math
 Attention(Q,K,V)=Softmax\left(\frac{QK^T}{\sqrt{d_k}}\right)V
 ```
 
-  Unlike CNNs, which build hierarchical features through local filters (e.g., 3×3, 5×5), ViT evaluates all patches simultaneously from the start—allowing it to capture long-range relationships, such as consistency between line slant at the top of a page and writing density at the bottom.
+This is where ViT really differs from a typical CNN. A convolutional network builds up its understanding gradually, starting from small local filters (3×3 or 5×5) that detect edges and textures before combining them into larger shapes. ViT instead looks at all 196 patches at once from the very first layer, so it can directly relate, say, the slant of the first line of text to the spacing of the last line, even though they are far apart in the image.
 
-- **Classification Head** — The CLS token's final representation is passed through an MLP head to produce logits for the five OCEAN classes, converted to probabilities via Softmax:
-
-```math
-\sigma(z)_i=\frac{e^{z_i}}{\sum_j e^{z_j}}
-```
-
-**Two-Stage Fine-Tuning:** Given the limited dataset size, the model is fine-tuned in two stages to avoid overfitting and preserve pretrained representations:
-
-1. **Linear Probing** — The backbone is frozen; only the classification head is trained.
-2. **Full Fine-Tuning** — The entire model is unfrozen and fine-tuned with a low learning rate; the checkpoint with the best Macro-F1 score is saved.
-
-Resizing: The input image is resized to 224 × 224 × 3 (RGB), which is the expected input size of the ViT model pretrained on ImageNet. 
-
-Patch Embedding: The image is divided into 196 patches of size 16 × 16 pixels. Each patch (16×16×3 = 768 dimensions) is transformed into a fixed-size embedding vector through linear projection. 
-
-CLS Token: A special [CLS] token used for classification is prepended to the sequence of 196 patch tokens, resulting in a total of 197 tokens. 
-
-Positional Embedding: A learnable positional embedding vector is added to each token to preserve spatial information. 
-
-Transformer Encoder: Consists of multiple encoder blocks, each containing Layer Normalization, Multi-Head Self-Attention (MSA), residual connections, and MLP layers. 
-
-
-```math
-Attention(Q,K,V)=Softmax\left(\frac{QK^T}{\sqrt{d_k}}\right)V
-```
-
-Classification Layer: The [CLS] token from the encoder output is passed through the MLP head to generate logits corresponding to five classes, which are then converted into a probability distribution using Softmax. 
+After passing through all the encoder blocks, the final representation of the CLS token is fed into an MLP classification head, which produces a logit for each of the five OCEAN personality classes. These logits are converted into probabilities using softmax:
 
 ```math
 \sigma(z)_i=\frac{e^{z_i}}{\sum_j e^{z_j}}
 ```
+
+Because the dataset used in this project is relatively small, the model is trained in two stages rather than fine tuning everything at once. In the first stage, the pretrained backbone is frozen and only the classification head is trained, so the model learns to map its existing visual features to the five personality classes. In the second stage, the backbone is unfrozen and the whole model is fine tuned with a low learning rate, while the checkpoint with the best Macro-F1 score on the validation set is kept. This two step approach helps the model adapt to handwriting images without losing the general visual knowledge it picked up from ImageNet.
 
 <p align="center">
     <img src="https://github.com/user-attachments/assets/1e5c4733-d90f-4caf-a50b-634523aed69c" width="850">
