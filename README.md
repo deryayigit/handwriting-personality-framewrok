@@ -1,4 +1,4 @@
-# Handwriting-Based Personality Prediction
+# Handwriting Personality Prediction
 
 Handwriting is an indicator of personality traits represented by neurological patterns in the brain. In other words, our brain and subconscious actually shape our character as a result of our habits. It is, therefore, a unique form of biometric data that contains various clues regarding an individual’s cognitive processes, motor skills and personality traits.  
 
