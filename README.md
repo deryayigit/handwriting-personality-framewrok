@@ -51,15 +51,18 @@ handwriting-personality-framework/
 
 ## System Overview
 
-The system follows a straightforward pipeline from input to prediction. The user uploads a handwriting sample image through the GUI, which is resized and normalized to match the input requirements of the Vision Transformer architecture (224×224×3). The image is then divided into 16×16 patches and converted into numerical embeddings that the model can process.
+In this project, Data Collection, Model Development, GUI Integration, and Testing and Validation stages were carried out. Within this scope, multiple datasets were used, these datasets were analyzed, and various methods were applied to identify the most successful model.
 
-The selected ViT model pretrained on ImageNet and fine-tuned on the handwriting dataset analyzes the input and predicts the dominant personality trait. The prediction results are displayed in the GUI alongside a confusion matrix summarizing the model's overall performance, and the analyzed handwriting sample is shown for reference.
+The user uploads a handwriting sample image through the developed Graphical User Interface (GUI). The input image is resized and normalized according to the requirements of the Vision Transformer (ViT) architecture (224×224×3). The image is then divided into 16×16 patches and converted into numerical embeddings that can be processed by the model.
 
-## Training Strategy & Experiments
+A ViT model pretrained on the ImageNet dataset and fine tuned on the handwriting dataset analyzes the input image and predicts the dominant personality trait. The prediction results are presented to the user through the GUI together with a confusion matrix summarizing the overall performance of the model. Model performance is also visualized through the confusion matrix.
 
-Multiple training strategies and data handling techniques were explored to identify the most effective configuration. These include class weighting, weighted random sampling, strong data augmentation, and preprocessing based image enhancement, each evaluated and compared across separate experiments.
+## Training Strategies and Experiments
 
-The best-performing configuration—based on accuracy and Macro-F1 score—was selected as the default model used for handwriting analysis in the GUI. All experiment results remain accessible through the interface, allowing users to compare different training strategies and their effects on model performance.
+During the study, class weighting, weighted random sampling, strong data augmentation, and preprocessing based image enhancement techniques were applied. Each technique was tested and compared through separate experiments.
+
+Based on Accuracy and Macro F1 score, the best performing configuration was selected as the default model used for handwriting analysis in the GUI. In addition, the results of all experiments remain accessible through the interface. This allows users to compare different training strategies and evaluate their impact on model performance.
+
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/96d3d7f0-52e3-4f9b-8c1f-8c5c29dd1a29" width="650">
@@ -145,7 +148,7 @@ Classification Layer: The [CLS] token from the encoder output is passed through 
 
 ## Code Implementation
 
-ViT Two-Stage Fine-Tuning Strategy 
+### ViT Two-Stage Fine-Tuning Strategy 
 
 Due to the limited size of the dataset, directly fine-tuning all ImageNet pretrained weights increases the risk of overfitting. To reduce this risk, a two-stage fine-tuning strategy was applied: 
 
@@ -244,34 +247,47 @@ Output:
 M_best → Fine-tuned Vision Transformer model
 
 ```
+### Development Environment and Libraries
 
-In the system design, Python was selected as the programming language due to its ease of use for vectorized operations, readability, open-source nature, extensive ecosystem support, and ability to accelerate development through rapid prototyping. In addition, Python is widely used in the modern Deep Learning ecosystem, making it a suitable choice for this project. 
+Python was selected as the main programming language because of its simplicity, readability, and strong support for Deep Learning applications. Its extensive ecosystem and rapid development capabilities made it a suitable choice for this project.
 
-Since Python is a runtime language, excessive use of for-loops can reduce performance and efficiency. This becomes particularly significant in matrix operations commonly used in Deep Learning. This issue is addressed through vectorization provided by libraries, resulting in a more efficient system. 
+Since Deep Learning models rely heavily on matrix operations, vectorized computations provided by libraries were preferred instead of manually written loops. This approach improves both efficiency and training performance.
 
-Visual Studio Code (Windows ecosystem) was used as the development environment (IDE). PyTorch, torchvision, timm, NumPy, scikit-learn, and Pillow were selected as the primary libraries. For GUI development, PyQt6, the modern Python-compatible version of the Qt framework, was used. 
+Visual Studio Code was used as the development environment. PyTorch, torchvision, timm, NumPy, scikit learn, and Pillow were used during model development. PyQt6 was used to develop the graphical user interface.
 
-The software architecture was designed in a modular manner. Within the scope of the project, the data layer, model training layer, and user interface layer were separated to create a maintainable and extensible system architecture. This structure enables easy integration of different datasets and training strategies. The codebase generally consists of data preparation, model training, evaluation, preprocessing, inference, and graphical user interface components. 
+### Software Architecture
 
-Each Python module is responsible for a specific task. The application is executed through a single entry point (GUI module), where model loading, inference, and user interactions are managed. The GUI does not perform model training; instead, it presents the outputs generated during training. 
+The software was designed using a modular architecture. The data layer, model training layer, and user interface layer were separated to create a maintainable and extensible system.
 
-The outputs of training are stored in the runs/ directory. A separate subfolder (e.g., EXP-001) is created for each training experiment. Config.yaml stores training configurations. Metrics.json stores performance metrics for each epoch. Model.pt contains the best saved model. Label.json contains class labels and their corresponding mappings. Splits.json stores the file paths of images allocated to training and validation sets. 
+This structure allows different datasets, training strategies, and model configurations to be integrated easily. The codebase mainly consists of data preparation, model training, evaluation, preprocessing, inference, and GUI components.
 
-main.py is the main execution file of the project. Core operations such as training, evaluation, and launching the graphical user interface are managed through this file. 
+Each module is responsible for a specific task. Model loading, inference, and user interactions are managed through the GUI. Model training is performed separately, and the GUI is used to present the generated results.
 
-dataset_registry.json and experiment_registry.json are registry files that define the datasets and experiment configurations used in the project. The dataset, training strategy, and parameter configuration for each experiment are determined through these files. 
+Project Structure
 
-The src/classification/ directory contains the training, model, and evaluation code used for classification-based personality prediction. Training the Vision Transformer model, saving checkpoints, and calculating test/validation metrics are performed in this section. 
+Training outputs are stored inside the runs/ directory. A separate folder is created for each experiment.
 
-The src/regression/ directory contains regression experiments aimed at predicting personality scores as continuous values. 
+config.yaml stores training configurations.
+metrics.json stores epoch based performance metrics.
+model.pt stores the best saved model.
+labels.json stores class labels and label mappings.
+splits.json stores dataset split information.
 
-The src/common/ directory contains shared code used across multiple modules, including dataset loading, experiment registry management, utility functions, and preprocessing integrations. 
+main.py is the main entry point of the project. Training, evaluation, and GUI execution are managed through this file.
 
-preprocessing_module/image_enhancer.cpp is a C++-based preprocessing module developed to apply image enhancement techniques to handwriting images. Operations such as grayscale conversion and background cleaning are implemented in a manner similar to the CLAHE algorithm. 
+dataset_registry.json and experiment_registry.json define the datasets and experiment configurations used throughout the project.
 
-The runs/ directory contains trained model weights, metric files, confusion matrix results, and temporary processed images generated during GUI execution. 
+src/classification/ contains the training, model, and evaluation modules used for classification based personality prediction.
 
-The datasets/ directory contains the datasets used for classification and regression experiments. 
+src/regression/ contains experiments designed to predict personality scores as continuous values.
+
+src/common/ contains shared utilities, dataset loading functions, experiment management tools, and preprocessing integrations.
+
+preprocessing_module/image_enhancer.cpp is a C++ based preprocessing module developed for handwriting image enhancement. Operations such as background cleaning and contrast improvement are implemented in this module.
+
+The runs/ directory contains trained models, performance metrics, confusion matrices, and temporary images generated during GUI execution.
+
+The datasets/ directory contains the datasets used in classification and regression experiments.
 
 ---
 
