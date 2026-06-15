@@ -90,7 +90,7 @@ To investigate model performance under different experimental settings, three da
 
 The Vision Transformer (ViT) architecture was introduced by Dosovitskiy et al. in "An Image is Worth 16×16 Words" (ICLR, 2021). Instead of processing an image pixel by pixel, ViT splits it into fixed size patches and treats each patch as a token, similar to words in a sentence. 
 In this project, every input image is first resized to 224×224×3 (RGB), which matches the resolution expected by the ImageNet-pretrained ViT. The image is then divided into patches of 16×16 pixels, giving 14 patches along each side and 196 patches in total. Each patch contains 16×16×3 = 768 values, and these are projected through a linear layer into fixed-size embedding vectors. This step is generally referred to as patch embedding.
-A special classification token, usually called the CLS token, is added at the beginning of this sequence of 196 patch embeddings, bringing the total to 197 tokens. As the data passes through the encoder, the CLS token interacts with all the patch tokens and gradually builds up a representation of the whole image. Since the Transformer itself has no built-in notion of where each patch sits in the image, a learnable positional embedding is added to every token so that spatial layout information is not lost.
+A special classification token, usually called the CLS token, is added at the beginning of this sequence of 196 patch embeddings, bringing the total to 197 tokens. As the data passes through the encoder, the CLS token interacts with all the patch tokens and gradually builds up a representation of the whole image. Since the Transformer itself has no builtin notion of where each patch sits in the image, a learnable positional embedding is added to every token so that spatial layout information is not lost.
 The core of the model is a stack of Transformer encoder blocks, each made up of layer normalization, multi-head self-attention, residual connections, and a small MLP. The attention mechanism computes, for every patch, how strongly it should attend to every other patch:
 
 ```math
@@ -121,11 +121,11 @@ Because the dataset used in this project is relatively small, the model is train
 
 ### ViT Two-Stage Fine-Tuning Strategy 
 
-Due to the limited size of the dataset, directly fine-tuning all ImageNet pretrained weights increases the risk of overfitting. To reduce this risk, a two-stage fine-tuning strategy was applied: 
+Due to the limited size of the dataset, directly fine-tuning all ImageNet pretrained weights increases the risk of overfitting. To reduce this risk, a two stage fine tuning strategy was applied: 
 
 Stage 1 — Linear Probing: The backbone (Transformer encoder) is frozen, and only the classification head is trained. 
 
-Stage 2 — Full Fine-Tuning: The backbone is unfrozen and the entire model is fine-tuned with a low learning rate; the checkpoint with the best Macro-F1 score is saved. 
+Stage 2 — Full Fine-Tuning: The backbone is unfrozen and the entire model is fine-tuned with a low learning rate, the checkpoint with the best Macro-F1 score is saved. 
 
 #### ViT Pseudocode 
 
