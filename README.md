@@ -324,5 +324,3 @@ https://github.com/sakshamchecker/HiEnWrite-Dataset
 ## Acknowledgements
 
 This project was carried out under the guidance and support of my advisor, Assoc. Prof. Dr. Selen Ayas. I would like to thank the members of my final project jury Prof. Dr. Murat Ekinci, Assoc. Prof. Dr. Selen Ayas and Res. Asst. Mustafa Yazıcı, for the time they devoted to the project evaluation process.
-
-I would especially like to thank Prof. Dr. Murat Ekinci for helping me develop a strong engineering mindset through his lectures and assignments and for emphasizing the importance of analytical thinking. His approach significantly contributed to my ability to examine and understand the technologies, methods and research processes involved in this study in greater depth.
